@@ -17,7 +17,7 @@ wpzibll官方站点与教程仍以 <https://www.zibll.com> 为准。GitHub 仓�
 | 已测试 WordPress 版本 | `6.8` |
 | PHP 最低版本 | `7.0` |
 | Text domain | `zibll` |
-| wpzibll官方站点 | <https://www.zibll.com> |
+| zibll官方站点 | <https://www.zibll.com> |
 | wpzibll官方维护方 | wpzibll官方 |
 
 ## wpzibll官方开源发布说明
