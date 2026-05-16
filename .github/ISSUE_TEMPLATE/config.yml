@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://www.zibll.com
+    about: Do not report exploitable vulnerabilities publicly. Use the official private reporting channel described in SECURITY.md.
+  - name: Official documentation
+    url: https://www.zibll.com
+    about: Read official tutorials, release notes, and product documentation.

@@ -1,0 +1,20 @@
+{
+    "name": "xunhu/xunhupay",
+    "description": "本项目是基于 XunhuPAY 的 API 开发的 Composer Package,申请地址：https://pay.xunhuweb.com",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Xunhu",
+            "email": "jeff@xunhuweb.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Xunhu\\Xunhupay\\": "src/"
+        }
+    }
+}

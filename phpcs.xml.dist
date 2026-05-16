@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="Zibll">
+    <description>WordPress-oriented coding standard checks for Zibll.</description>
+    <file>.</file>
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+    <exclude-pattern>js/libs/*</exclude-pattern>
+    <exclude-pattern>zibpay/assets/js/*.min.js</exclude-pattern>
+    <rule ref="WordPress" />
+</ruleset>

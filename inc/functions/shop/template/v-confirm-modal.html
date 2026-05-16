@@ -1,0 +1,303 @@
+<div class="mini-scrollbar scroll-y">
+    <div class="order-address-box zib-widget mb10-sm" v-if="shipping_has_express">
+        <div class="address-box-body" v-if="user_data.address_data.id">
+            <div class="flex ac jsb pointer" @click="showAddressModal">
+                <span class="address-icon badg cir jb-yellow mr10">
+                    <i class="fa fa-map-marker"></i>
+                </span>
+                <div class="address-content flex1 mr10">
+                    <div class="address-detail muted-color flex ac">
+                        <div class="name-phone mb6">
+                            <span class="name">{{ user_data.address_data.name }}</span>
+                            <span class="phone ml6">{{ user_data.address_data.phone }}</span>
+                            <span class="badg badg-sm c-blue ml6" v-if="user_data.address_data.tag">{{ user_data.address_data.tag }}</span>
+                            <span class="default-badge badg badg-sm c-red ml3" v-if="user_data.address_data.is_default">默认</span>
+                        </div>
+                    </div>
+                    <div class="muted-2-color em09">{{ user_data.address_data.county + user_data.address_data.address }}</div>
+                </div>
+                <i class="fa fa-angle-right em12"></i>
+            </div>
+        </div>
+        <div class="address-box-body" v-else>
+            <div class="flex muted-color jsb ac pointer" @click="showAddAddressModal">
+                <div class="icon-header mr20 shrink0">
+                    <i class="fa fa-map-marker mr6"></i>
+                    <span class="">请先添加收货地址</span>
+                </div>
+                <div class="flex ac overflow-hidden">
+                    <div class="text-ellipsis muted-3-color">添加</div>
+                    <i class="fa fa-angle-right em12 ml6"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自动发货 -->
+    <div class="order-address-box zib-widget mb10-sm" v-if="shipping_has_auto && email_fill !== 'off'">
+        <div class="flex ac jsb pointer" @click="user_data.email_edit = true;$nextTick(() => { $refs.user_email_input.focus() })">
+            <span class="address-icon badg cir jb-yellow mr10">
+                <i class="fa fa-envelope-o"></i>
+            </span>
+            <div class="address-box-body flex-auto">
+                <div class="address-item">
+                    <input v-if="user_data.email_edit" type="text" class="form-control" placeholder="请填写接受资料的邮箱" v-model="user_data.email" ref="user_email_input" />
+                    <div v-else>
+                        {{ user_data.email || '请先填写' }}
+                        <span class="badg badg-sm c-blue ml6">收货邮箱</span>
+                        <span class="badg badg-sm c-green ml6" v-if="email_fill === 'fill'">选填</span>
+                    </div>
+                </div>
+                <div class="address-desc muted-3-color px12 mt6">付款后，系统会自动将资料发送到您填写的邮箱</div>
+            </div>
+            <i class="fa fa-angle-right em12 ml6" v-if="!user_data.email_edit"></i>
+        </div>
+    </div>
+
+    <!-- 商品明细 -->
+    <div class="order-confirm-product">
+        <div class="order-product-lists-box">
+            <div class="confirm-group" :class="config.author_show ? 'zib-widget mb10-sm' : ''" v-for="( product_items , author_id ) in item_data" :key="'author-' + author_id">
+                <div class="cart-list-author flex ac cart-list-item" v-if="config.author_show">
+                    <div class="cart-col-right">
+                        <div class="cart-col-author">
+                            <div class="mr10" v-html="author_data[author_id].avatar"></div>
+                            {{ author_data[author_id].name }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="confirm-product-item" v-for="( opt_items , product_id ) in product_items" :key="'item-' + author_id + '-' + product_id">
+                    <div class="cart-list-item confirm-list-item" :class="!config.author_show ? 'zib-widget mb10-sm' : ''" v-for="( opt_data , opt_key ) in opt_items" :key="'item-' + author_id + '-' + product_id + '-' + opt_key">
+                        <div class="cart-list-header flex ac jsb list-header">
+                            <div class="item-thumbnail product-graphic nowave"><img imgbox-no-cache="true" class="alone-imgbox-img" :src="opt_data.product_image" :alt="product_data[product_id].title"></div>
+                            <div class="flex1 flex">
+                                <div class="cart-col-product flex1 mr10">
+                                    <div class="product-title text-ellipsis" v-html="product_data[opt_data.product_id].title"></div>
+                                    <span class="em09 muted-color" v-if="opt_data.options_active_name">{{ opt_data.options_active_name }}</span>
+                                    <div v-discount-badge="product_data[opt_data.product_id].discount" data-hit-discount="opt_data.discount_hit" class="product-discount-box scroll-x mini-scrollbar mt10" @click="discountModal(discount_data,opt_data.discount_hit)"></div>
+                                </div>
+                                <div class="flex-shrink0 text-right flex xx ab">
+                                    <div class="price-box muted-color">
+                                        <div class="flex abl" :class="opt_data.pay_mode === 'points' ? 'c-yellow' : 'c-red'">
+                                            <span class="pay-mark px12" v-html="product_data[opt_data.product_id].show_mark"></span>
+                                            <span class="em12" v-price="opt_data.prices.unit_price"></span>
+                                        </div>
+                                    </div>
+                                    <span class="muted-color mt6">
+                                        <span class="">x</span>
+                                        <span class="number-input em12">{{ opt_data.count }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-desc mt10">
+                            <div class="desc-item mt10">
+                                <div class="product-shipping-box">
+                                    <div class="flex muted-color jsb">
+                                        <div class="icon-header mr20 shrink0">
+                                            <i class="fa fa-truck mr6 fa-fw"></i>
+                                            <span class="muted-2-color">发货</span>
+                                        </div>
+                                        <div class="flex ab xx">
+                                            <div class="flex ac shipping-title muted-color" v-html="product_data[opt_data.product_id].shipping_title"></div>
+                                            <div class="shipping-auto-desc em09 muted-3-color" v-if="product_data[opt_data.product_id].shipping_desc" v-html="product_data[opt_data.product_id].shipping_desc"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="desc-item mt10" v-show="!$.isEmptyObject(opt_data.gift_data)">
+                                <div class="flex muted-color jsb ac pointer" @click="showGiftModal(opt_data)">
+                                    <div class="icon-header mr20 shrink0">
+                                        <i class="fa fa-gift mr6 fa-fw"></i>
+                                        <span class="muted-2-color">赠品</span>
+                                    </div>
+                                    <div class="flex ac overflow-hidden">
+                                        <div class="text-ellipsis" v-effect="$el.textContent = giftDesc(opt_data.gift_data)"></div>
+                                        <i class="fa fa-angle-right em12 ml6"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="desc-item mt10">
+                                <div class="flex muted-color jsb ac pointer" @click="showRemarkModal(opt_data)">
+                                    <div class="icon-header mr20 shrink0">
+                                        <i class="fa fa-comment mr6 fa-fw"></i>
+                                        <span class="muted-2-color">备注</span>
+                                    </div>
+                                    <div class="flex ac overflow-hidden">
+                                        <div class="text-ellipsis" :class="!opt_data.remark ? 'muted-3-color' : ''">{{ opt_data.remark || '无备注' }}</div>
+                                        <i class="fa fa-angle-right em12 ml6"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="desc-item mt10" v-for="user_required_item in opt_data.user_required" :key="'item-' + author_id + '-' + opt_data.product_id + '-' + opt_key + '-' + user_required_item.key">
+                                <div class="flex muted-color jsb ac pointer" @click="showUserRequiredModal(opt_data)">
+                                    <div class="icon-header mr20 shrink0">
+                                        <i class="fa fa-edit mr6 fa-fw"></i>
+                                        <span class="muted-2-color">{{ user_required_item.name }}</span>
+                                    </div>
+                                    <div class="flex ac overflow-hidden">
+                                        <div class="text-ellipsis" :class="!userRequiredValue(user_required_item.name,opt_data) ? 'c-red' : ''">{{ userRequiredValue(user_required_item.name,opt_data) || '必填' }}</div>
+                                        <i class="fa fa-angle-right em12 ml6"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单价格信息 -->
+    <div class="order-info-box zib-widget mb10-sm">
+        <div class="order-info-body">
+            <div class="order-info-item flex at jsb mb10">
+                <div class="item-label muted-color">
+                    商品总价
+                    <span class="muted-3-color px12">共{{total_data.count}}件</span>
+                </div>
+                <div class="item-value">
+                    <div class="order-pay-prices-box flex abl xx">
+                        <div class="order-pay-prices-item flex abl" v-if="total_data.points_count">
+                            <span class="pay-mark px12" v-html="total_data.points_mark"></span>
+                            <span class="price-str" v-price="total_data.points"></span>
+                        </div>
+                        <div class="order-pay-prices-item flex abl" v-if="total_data.price_count">
+                            <span class="pay-mark px12" v-html="total_data.pay_mark"></span>
+                            <span class="price-str" v-price="total_data.price"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-info-item flex ac jsb mb10" v-if="shipping_has_express">
+                <div class="item-label muted-color">运费</div>
+                <div class="item-value flex abl">
+                    <span class="pay-mark px12" v-html="total_data.pay_mark"></span>
+                    <span class="price-str" v-price="total_data.shipping_fee"></span>
+                </div>
+            </div>
+            <div class="order-info-item flex ac jsb mb10 pointer" @click="showDiscountHitModal" v-if="total_data.price - total_data.discount_price > 0 || total_data.points-total_data.discount_points >0">
+                <div class="item-label muted-color">优惠</div>
+                <div class="item-value flex ac jsb">
+                    <div class="order-pay-prices-box flex abl xx">
+                        <div class="order-pay-prices-item flex abl c-yellow" v-if="total_data.points_count">
+                            <span class="mr3">-</span>
+                            <span class="pay-mark px12" v-html="total_data.points_mark"></span>
+                            <span class="price-str" v-price="total_data.points-total_data.discount_points"></span>
+                        </div>
+                        <div class="order-pay-prices-item flex abl c-red" v-if="total_data.price_count">
+                            <span class="mr3">-</span>
+                            <span class="pay-mark px12" v-html="total_data.pay_mark"></span>
+                            <span class="price-str" v-price="total_data.price - total_data.discount_price"></span>
+                        </div>
+                    </div>
+                    <i class="fa fa-angle-right em12 ml6 muted-color" v-if="!$.isEmptyObject(total_data.discount_hit)"></i>
+                </div>
+            </div>
+            <div class="order-info-item flex ac jsb">
+                <div class="item-label muted-color">合计</div>
+                <div class="item-value">
+                    <div class="order-pay-prices-box flex abl xx">
+                        <div class="order-pay-prices-item flex abl c-yellow em12" v-if="total_data.points_count">
+                            <span class="pay-mark px12" v-html="total_data.points_mark"></span>
+                            <span class="price-str" v-price="total_data.pay_points"></span>
+                        </div>
+                        <div class="order-pay-prices-item flex abl c-red em12" v-if="total_data.price_count">
+                            <span class="pay-mark px12" v-html="total_data.pay_mark"></span>
+                            <span class="price-str" v-price="total_data.pay_price"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="zib-widget mb10-sm" v-if="0">
+        <div class="flex jsb ac">
+            <span class="muted-color mr10 flex1">订单号</span>
+            <div class="">{{ payment_data.order_num }}</div>
+        </div>
+        <div class="flex jsb ac mt10">
+            <span class="muted-color mr10 flex1">下单时间</span>
+            <div class="">{{ payment_data.create_time }}</div>
+        </div>
+    </div>
+
+    <!-- 支付方式 -->
+    <div class="order-paytype-box mb20" v-if="total_data.discount_price > 0 || total_data.discount_points > 0">
+        <div class="zib-widget mb10-sm" v-if="!$.isEmptyObject(pay_data.pay_methods)">
+            <div class="payment-methods" v-for="(method, key) in pay_data.pay_methods" :key="'payment-method-' + key" @click="paymentMethodChange(key)">
+                <div class="flex jsb ac">
+                    <div class="flex ac">
+                        <div class="mr6 payment-icon" v-html="method.img"></div>
+                        <div class="muted-color">{{ method.name }}</div>
+                    </div>
+                    <div class="flex ac">
+                        <div class="mr10 flex abl" v-if="key === 'balance'">
+                            <span class="muted-2-color px12">剩余：</span>
+                            <span class="px12" v-html="total_data.pay_mark"></span>
+                            <span class="" v-price="pay_data.user_balance"></span>
+                        </div>
+                        <div class="mr10 flex abl" v-if="key === 'points'">
+                            <span class="muted-2-color px12">剩余：</span>
+                            <span class="px12" v-html="total_data.points_mark"></span>
+                            <span class="" v-price="pay_data.user_points"></span>
+                        </div>
+                        <div class="cart-col-checkbox">
+                            <div class="div-checkbox" :class="{'checked': pay_data.pay_methods_active === key}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="muted-box flex jsb ac mt10 padding-10" v-if="pay_data.user_balance < total_data.discount_price && key === 'balance' && pay_data.pay_methods_active === 'balance'">
+                    <span class="c-red">
+                        <i class="fa fa-info-circle"></i>
+                        <span>余额不足</span>
+                    </span>
+                    <div>
+                        <a target="_blank" class="but c-blue" :href="pay_data.user_balance_url">我的余额</a>
+                        <span v-html="pay_data.balance_charge_link"></span>
+                    </div>
+                </div>
+                <div class="muted-box flex jsb ac mt10 padding-10" v-if="pay_data.pay_methods_active === 'points' && key === 'points' && pay_data.user_points < total_data.discount_points">
+                    <span class="c-red">
+                        <i class="fa fa-info-circle"></i>
+                        <span>积分不足</span>
+                    </span>
+                    <div>
+                        <a target="_blank" class="but c-blue" :href="pay_data.user_points_url">我的积分</a>
+                        <span v-html="pay_data.points_pay_link"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 支付按钮 -->
+<div class="order-pay-btn mt10" v-show="!payment_data.order_num" v-if="!$.isEmptyObject(pay_data.pay_methods)">
+    <button class="but jb-red padding-lg radius btn-block order-submit-btn" @click.prevent="submitOrInitiatePay">
+        <span class="btn-text">提交订单</span>
+        <span class="em09 opacity8 ml10">
+            <span class="" v-if="total_data.count > 1 ">共{{ total_data.count }}件</span>
+            <span class="pay-price-text" v-if="total_data.points_count">
+                <span class="px12 pay-mark" v-html="total_data.points_mark"></span>
+                <span class="actual-price-number em12" v-price="total_data.pay_points"></span>
+            </span>
+            <span class="pay-price-text" v-if="total_data.price_count">
+                <span class="px12 pay-mark" v-html="total_data.pay_mark"></span>
+                <span class="actual-price-number em12" v-price="total_data.pay_price"></span>
+            </span>
+        </span>
+    </button>
+</div>
+<div v-else v-html="pay_data.error_msg || '没有收款接口，暂时无法购买'"></div>
+<form id="shop_zibpay_form" ref="zibpay_form" v-if="payment_data.order_num">
+    <input type="hidden" name="payment_id" :value="payment_data.id" />
+    <input type="hidden" name="payment_method" :value="pay_data.pay_methods_active" />
+    <button class="but jb-red padding-lg radius initiate-pay mt10 btn-block">
+        <span class="btn-text mr10">立即支付</span>
+        <span class="px12 pay-mark" v-html=" pay_modo === 'points' ? total_data.points_mark : total_data.pay_mark"></span>
+        {{ payment_data.price }}
+    </button>
+</form>

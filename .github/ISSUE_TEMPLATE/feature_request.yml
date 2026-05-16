@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest an improvement for Zibll
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: Describe the practical problem this feature would solve.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the expected behavior, configuration, and affected modules.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and security notes
+      description: Mention effects on performance, permissions, uploads, payment, user data, or third-party services.
+    validations:
+      required: false

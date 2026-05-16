@@ -1,0 +1,5 @@
+SIL Open Font License 1.1
+
+This theme bundles font assets under the SIL Open Font License 1.1. The full license text is available from SIL: https://openfontlicense.org/
+
+Bundled OFL fonts include Font Awesome font files and Julius Sans One.

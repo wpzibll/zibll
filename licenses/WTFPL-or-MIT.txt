@@ -1,0 +1,3 @@
+spark-md5 dual license notice
+
+spark-md5 is available under WTFPL OR MIT. This distribution uses the MIT alternative for GPL-compatible redistribution.

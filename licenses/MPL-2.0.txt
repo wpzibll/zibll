@@ -1,0 +1,5 @@
+Mozilla Public License Version 2.0
+
+This theme bundles some MPL-2.0 licensed files as separate files. The full license text is available from Mozilla: https://www.mozilla.org/MPL/2.0/
+
+MPL-2.0 permits distribution in a Larger Work with GPL-family licenses when the Covered Software remains available under the MPL.

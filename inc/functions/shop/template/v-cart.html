@@ -1,0 +1,206 @@
+<div class="cart-header-bar flex ac jsb mb10">
+    <div class="index-tab rectangular relative" v-if="user_data.favorite_ajax_url">
+        <ul class="list-inline scroll-x no-scrollbar" :class="!is_mobile ? 'em12' : ''">
+            <li class="active"><a data-toggle="tab" href="#shop_cart_cart">购物车</a></li>
+            <li class=""><a data-ajax="" data-toggle="tab" href="#shop_cart_favorite">收藏夹</a></li>
+        </ul>
+    </div>
+    <div class="em12 muted-color" v-else>我的购物车</div>
+
+    <div class="steps-box cart-steps" v-if="!is_mobile">
+        <div class="step active">
+            <div class="step-label">选择商品</div>
+        </div>
+        <div class="step">
+            <div class="step-label">核对订单</div>
+        </div>
+        <div class="step">
+            <div class="step-label">提交订单</div>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content">
+    <div class="tab-pane fade in active" id="shop_cart_cart">
+        <div class="cart-list-item cart-header zib-widget" v-if="!is_mobile">
+            <div class="cart-list-header flex ac jsb">
+                <div class="cart-col-checkbox flex ac" @click="checkAll">
+                    <div class="mr10 div-checkbox" :class="total_data.checked_status"></div>
+                    <div class="">全选</div>
+                </div>
+                <div class="cart-col-right">
+                    <div class="item-thumbnail product-graphic"></div>
+                    <div class="cart-col-main">
+                        <div class="cart-col-product">商品</div>
+                        <div class="cart-col-spinner-price">
+                            <div class="cart-col-price">单价</div>
+                            <div class="cart-col-spinner">计数</div>
+                            <div class="cart-col-price">小计</div>
+                        </div>
+                        <div class="cart-col-action">操作</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="abs right-top" v-else>
+            <div class="but" @click="config.is_edit = !config.is_edit">{{config.is_edit ? '完成' : '管理'}}</div>
+        </div>
+        <div class="cart-list-content mb20" :class="!config.author_show ? 'cart-group zib-widget full-widget-sm' : ''">
+            <div :class="config.author_show ? 'cart-group zib-widget mb10 full-widget-sm' : ''" v-for="( product_items , author_id ) in cart_data" :key="'author-' + author_id" :data-author-id="author_id">
+                <div class="cart-list-author cart-list-item" v-if="config.author_show">
+                    <div class="cart-list-header flex ac jsb">
+                        <div class="cart-col-checkbox" @click="checkAuthor(author_id)">
+                            <div class="div-checkbox" :class="author_data[author_id].checked_status"></div>
+                        </div>
+                        <div class="cart-col-right">
+                            <a class="cart-col-author ellipsis-box" :href="author_data[author_id].url">
+                                <div class="mr10" v-html="author_data[author_id].avatar"></div>
+                                <div class="text-ellipsis">{{ author_data[author_id].name }}</div>
+                                <i class="ml6 fa fa-angle-right em12"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-product" v-for="( product_opt , product_id ) in product_items" :key="'product-' + product_id" :data-product-id="product_id">
+                    <div class="cart-list-item" v-for="( opt_data , opt_key ) in product_opt" :key="'item-' + author_id + '-' + product_id + '-' + opt_key" :data-optkey="opt_key">
+                        <div class="cart-list-header flex ac jsb">
+                            <div class="cart-col-checkbox" @click="checkItem(opt_data)">
+                                <div class="div-checkbox" :class="{ 'is-disabled': opt_data.options_active_error || opt_data.stock_all == 0, 'checked': opt_data.checked }"></div>
+                            </div>
+                            <div class="cart-col-right">
+                                <div class="item-thumbnail product-graphic gradient-bg nowave" data-opacity="0.1"><img :src="opt_data.main_image_url" :alt="product_data[product_id].title"></div>
+                                <div class="cart-col-main">
+                                    <div class="cart-col-product">
+                                        <div class="product-title text-ellipsis-2">
+                                            <span v-if="product_data[product_id].tags.important.name" :class="product_data[product_id].tags.important.class" class="badg badg-sm">{{ product_data[product_id].tags.important.name }}</span>
+                                            <a :href="product_data[product_id].url">{{ product_data[product_id].title }}</a>
+                                        </div>
+                                        <botton class="but px12-sm p2-10 product-option-btn flex ac ellipsis-box" v-if="product_data[product_id].product_options.length > 0" @click.prevent="cartModal(opt_data)">
+                                            <span class="text-ellipsis">{{ opt_data.options_active_name }}</span>
+                                            <i class="ml6 fa fa-angle-right em12"></i>
+                                        </botton>
+                                        <div v-discount-badge="product_data[product_id].discount" data-hit-discount="opt_data.discount_hit" class="product-discount-box scroll-x mini-scrollbar" @click="discountModal(product_data[product_id].discount)"></div>
+                                        <div class="product-tags-box scroll-x mini-scrollbar" v-if="!$.isEmptyObject(product_data[product_id].tags.tags)">
+                                            <span v-for="tag in product_data[product_id].tags.tags" :key="'tag-' + tag.id">
+                                                <span class="badg badge-tag badg-sm" :class="tag.class">{{ tag.name }}</span>
+                                            </span>
+                                        </div>
+                                        <div class="cart-col-spinner-price-sm flex ac jsb" v-if="is_mobile">
+                                            <div class="cart-col-price">
+                                                <div class="price-box" :class="product_data[product_id].pay_modo == 'points' ? 'c-yellow' : 'c-red'">
+                                                    <div class="inflex abl">
+                                                        <span class="pay-mark" v-html="product_data[product_id].show_mark"></span>
+                                                        <b class="price-str" v-price="opt_data.prices.unit_discount_price"></b>
+                                                    </div>
+                                                    <div class="original-price muted-2-color ml6" v-if="opt_data.prices.unit_price > opt_data.prices.unit_discount_price">
+                                                        <span class="pay-mark" v-html="product_data[product_id].show_mark"></span>
+                                                        <span v-price="opt_data.prices.unit_price"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="cart-col-remove" v-if="config.is_edit && is_mobile">
+                                                <botton class="cart-remove-btn c-red but cir" @click="removeItem(author_id,product_id,opt_key,true)"><i title="fa fa-trash-o" class="fa fa-trash-o"></i></botton>
+                                            </div>
+                                            <div v-else>
+                                                <div class="cart-col-spinner" v-spinner="opt_data.selected_count" @change="listCountChange(opt_data)" min="1" :max="spinnerMax(opt_data)"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cart-col-spinner-price" v-if="!is_mobile">
+                                        <div class="cart-col-price">
+                                            <div class="price-box" :class="product_data[product_id].pay_modo == 'points' ? 'c-yellow' : 'c-red'">
+                                                <div class="inflex abl">
+                                                    <span class="pay-mark" v-html="product_data[product_id].show_mark"></span>
+                                                    <b class="price-str" v-price="opt_data.prices.unit_discount_price"></b>
+                                                </div>
+                                                <div class="original-price muted-2-color ml6" v-if="opt_data.prices.unit_price > opt_data.prices.unit_discount_price">
+                                                    <span class="pay-mark" v-html="product_data[product_id].show_mark"></span>
+                                                    <span v-price="opt_data.prices.unit_price"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cart-col-spinner">
+                                            <div class="" v-spinner="opt_data.selected_count" @change="listCountChange(opt_data)" min="1" :max="spinnerMax(opt_data)"></div>
+                                            <div class="flex em09">
+                                                <div class="stock-desc muted-color mt6" v-effect="$el.innerHTML = stockAllText(opt_data.stock_all)"></div>
+                                                <div class="limit-buy-desc c-yellow ml6 mt6" v-limit-buy="opt_data.limit_buy"></div>
+                                            </div>
+                                        </div>
+                                        <div class="cart-col-price cart-col-total-price">
+                                            <div class="price-box" :class="product_data[product_id].pay_modo == 'points' ? 'c-yellow' : 'c-red'">
+                                                <div class="inflex abl">
+                                                    <span class="pay-mark" v-html="product_data[product_id].show_mark"></span>
+                                                    <b class="price-str" v-price="opt_data.prices.total_discount_price"></b>
+                                                </div>
+                                                <div class="badg badg-sm c-yellow pointer ml6" @click="showItemDiscountHitModal(opt_data)" v-if="opt_data.prices.total_discount">省 {{ opt_data.prices.total_discount }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cart-col-action" v-if="!is_mobile">
+                                        <botton class="but c-red p2-10" @click="removeItem(author_id,product_id,opt_key,true)">删除</botton>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-desc"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="cart-list-item cart-footer" :class="is_mobile ? 'footer-tabbar' : 'zib-widget'">
+            <div class="cart-list-header flex ac jsb">
+                <div class="cart-col-checkbox flex ac" @click="checkAll">
+                    <div class="div-checkbox mr10" :class="total_data.checked_status"></div>
+                    <div class="">全选</div>
+                </div>
+                <div class="cart-col-right">
+                    <div class="cart-col-main">
+                        <div class="cart-col-remove">
+                            <botton class="cart-remove-btn but p2-10" v-if="!is_mobile" @click="removeChecked" :class="total_data.count > 0 ? '' : 'is-disabled'">{{ is_mobile ? '移出' : '移出选中商品' }}</botton>
+                        </div>
+                        <div class="cart-col-settlement flex ac" v-if="!config.is_edit || !is_mobile">
+                            <div class="cart-col-total-info">
+                                <div class="total-price">
+                                    <div class="flex ab">
+                                        <span class="em09">
+                                            <span class="opacity8 em09" v-if="total_data.count > 0">{{total_data.count + '件' + (is_mobile ? '' : '商品') + ' · '}}</span>
+                                            <span class="mr3">合计</span>
+                                        </span>
+                                        <span :class="total_data.pay_modo == 'points' ? 'c-yellow' : 'c-red'" class="price-box inflex">
+                                            <span class="pay-mark px12" v-html="total_data.show_mark"></span>
+                                            <span class="em12" v-price="total_data.pay_modo == 'points' ? total_data.discount_points : total_data.discount_price"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="discount-str c-yellow inflex" v-if="total_data.pay_modo === 'points'" :class="total_data.points <= total_data.discount_points ? 'hide' : ''" @click="showDiscountHitModal">
+                                    <span class="mr3">共计优惠</span>
+                                    <span class="pay-mark px12" v-html="total_data.show_mark"></span>
+                                    <span class="price-str" v-price="total_data.points-total_data.discount_points"></span>
+                                    <i class="fa fa-angle-up em12"></i>
+                                </div>
+                                <div class="discount-str c-red inflex abl" v-else :class="total_data.price <= total_data.discount_price ? 'hide' : ''" @click="showDiscountHitModal">
+                                    <span class="mr3">共计优惠</span>
+                                    <span class="pay-mark px12" v-html="total_data.show_mark"></span>
+                                    <span class="price-str" v-price="total_data.price - total_data.discount_price"></span>
+                                    <i class="fa fa-angle-up em12 ml3 muted-2-color"></i>
+                                </div>
+                            </div>
+                            <botton class="but jb-red settle-btn" :class="!total_data.is_can_pay ? 'is-disabled' : ''" @click.prevent="goConfirm">结算</botton>
+                        </div>
+                        <div v-else class="cart-col-settlement">
+                            <div class="cart-col-remove">
+                                <botton class="cart-remove-btn but c-red" @click="removeChecked" :class="total_data.count > 0 ? '' : 'is-disabled'">移出</botton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ajaxpager tab-pane fade product-lists-row" id="shop_cart_favorite" v-if="user_data.favorite_ajax_url">
+        <span class="post_ajax_trigger hide"><a :href="user_data.favorite_ajax_url" class="ajax_load ajax-next ajax-open"></a></span>
+        <div class="post_ajax_loader" style="display: none" v-html="config.lists_placeholder"></div>
+    </div>
+</div>

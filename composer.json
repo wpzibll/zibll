@@ -1,0 +1,25 @@
+{
+    "name": "zibll/zibll",
+    "description": "wpzibll官方开源 WordPress 主题项目。",
+    "type": "wordpress-theme",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "wpzibll官方",
+            "homepage": "https://www.zibll.com"
+        }
+    ],
+    "support": {
+        "homepage": "https://www.zibll.com"
+    },
+    "require": {
+        "php": ">=7.0",
+        "yurunsoft/pay-sdk": "~2.0",
+        "yurunsoft/yurun-oauth-login": "~2.0",
+        "qcloudsms/qcloudsms_php": "0.1.*"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
